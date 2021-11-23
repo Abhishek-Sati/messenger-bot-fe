@@ -13,6 +13,7 @@
 }
 
 .message-list-container {
+	grid-template-rows: repeat(auto-fit, minmax(max-content, 2rem));
 	overflow-y: auto;
 	display: grid;
 	row-gap: 0.5rem;
@@ -29,6 +30,7 @@
 	max-width: 20rem;
 	text-align: start;
 	padding: 0.5rem;
+	height: fit-content;
 }
 
 .user-message {
@@ -40,6 +42,7 @@
 	max-width: 20rem;
 	text-align: start;
 	padding: 0.5rem;
+	height: fit-content;
 }
 
 .message-input {
@@ -55,4 +58,17 @@
 	font-weight: bold;
 	background-color: white;
 	padding: 0.25rem 0;
+}
+
+.send-btn {
+	padding: 0.5rem;
+	cursor: pointer;
+}
+
+input[type="submit"]:disabled {
+	cursor: not-allowed;
+}
+
+.empty-list-text {
+	margin-top: 15rem;
 }

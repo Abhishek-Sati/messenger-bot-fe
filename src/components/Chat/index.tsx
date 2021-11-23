@@ -36,6 +36,8 @@ export const Chat = memo(() => {
 
 	const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>) => {
 		event.preventDefault();
+		// return if message doesn't contain any text.
+		if (!message.trim()) return;
 		// to find message id of last message sent by user.
 		const { message_id } = [...messages].reverse().find(({ fromBot }) => !Boolean(fromBot)) ?? {};
 		const { type } = messages[messages.length - 1] ?? {};
@@ -69,7 +71,7 @@ export const Chat = memo(() => {
 						onChange={handleChange}
 					/>
 				</label>
-				<input type='submit' value='Send' />
+				<input type='submit' value='Send' className='send-btn' disabled={!Boolean(message.trim())} />
 			</form>
 		</div>
 	);

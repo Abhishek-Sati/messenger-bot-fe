@@ -17,7 +17,7 @@ export const MessageList = memo((props: PropsFromParent) => {
 		));
 	};
 
-	const renderEmptyListMessage = () => <p>No Previous Message Found. Start chat...</p>;
+	const renderEmptyListMessage = () => <p className="empty-list-text" >No Previous Message Found. Start chat...</p>;
 
 	return (
 		<div className='message-list-container'>

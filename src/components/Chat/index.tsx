@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, memo } from "react";
 import { MessageType, NewMessageType, WebSocketContext } from "../../contexts/webSocketContext";
 import { MessageList } from "./MessageList";
+import "./index.css";
 
 let updatedMessages: NewMessageType[] = [];
 
@@ -41,14 +42,21 @@ export const Chat = memo(() => {
 	};
 
 	return (
-		<div>
+		<div className='chat-container'>
+			<div className='messenger-title'>Messenger Bot</div>
 			<MessageList />
 			<form onSubmit={handleSubmit}>
 				<label>
 					Enter Message:
-					<input type='text' value={message} onChange={handleChange} />
+					<input
+						className='message-input'
+						type='text'
+						value={message}
+						placeholder='start typing...'
+						onChange={handleChange}
+					/>
 				</label>
-				<input type='submit' value='Submit' />
+				<input type='submit' value='Send' />
 			</form>
 		</div>
 	);

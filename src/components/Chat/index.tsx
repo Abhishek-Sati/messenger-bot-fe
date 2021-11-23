@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState, memo } from "react";
-import { WebSocketContext } from "../../contexts/webSocketContext";
+import { MessageType, NewMessageType, WebSocketContext } from "../../contexts/webSocketContext";
 import { MessageList } from "./MessageList";
+
+let updatedMessages: NewMessageType[] = [];
 
 export const Chat = memo(() => {
 	const { chatSocket, messages, onReceiveMessage } = useContext(WebSocketContext);
@@ -8,8 +10,8 @@ export const Chat = memo(() => {
 
 	useEffect(() => {
 		chatSocket?.on("receiveMessage", (data: any) => {
-			console.log("new message receive : ", data);
-			onReceiveMessage(data);
+			onReceiveMessage([...updatedMessages, data]);
+			updatedMessages = [];
 		});
 	}, []);
 
@@ -19,13 +21,20 @@ export const Chat = memo(() => {
 
 	const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		chatSocket?.emit("sendMessage", message, (error: any, data: any) => {
+		// to find message id of last message sent by user.
+		const { message_id, message: prevMessage } = [...messages].reverse().find(({ fromBot }) => !Boolean(fromBot)) ?? {};
+		const { type } = messages[messages.length - 1] ?? {};
+		console.log(type, message_id, prevMessage);
+		chatSocket?.emit("sendMessage", { message, type, prevMessageId: message_id, fromBot: false }, (error: any, data: any) => {
 			if (error) {
-				console.error(error);
+				console.error(data);
 				alert("Something went wrong!");
 			} else {
-				console.info("data : ", data);
-				onReceiveMessage(data);
+				// storing message copy in global variable, because updating state is an async task and by the time...
+				// ... this state gets updated, we already are going to receive new message on above use effect from backend service.
+				updatedMessages = [...messages, data];
+				console.info("data : ", messages, updatedMessages);
+				onReceiveMessage(updatedMessages);
 				setMessage("");
 			}
 		});

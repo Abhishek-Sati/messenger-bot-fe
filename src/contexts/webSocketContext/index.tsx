@@ -2,10 +2,25 @@ import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import { WS_BASE_URL } from "../../utils/helpers/constants";
 
+export enum MessageType {
+	NAME = "name",
+	DOB = "dob",
+	DAYS_LEFT = "days_left",
+	END = "end",
+}
+
+export type NewMessageType = {
+	message: string;
+	message_id: string;
+	type: MessageType;
+	fromBot: boolean;
+	prevMessageId?: string;
+};
+
 type WebSocketContextProps = {
 	chatSocket?: Socket;
-	messages: any[];
-	onReceiveMessage: (newMessage: any) => void;
+	messages: NewMessageType[];
+	onReceiveMessage: (messages: NewMessageType[]) => void;
 };
 
 type WebSocketProviderProps = {
@@ -15,18 +30,17 @@ type WebSocketProviderProps = {
 export const WebSocketContext = createContext<WebSocketContextProps>({
 	chatSocket: undefined,
 	messages: [],
-	onReceiveMessage: (newMessage: any) => {},
+	onReceiveMessage: (messages: NewMessageType[]) => {},
 });
 
 export const WebSocketContextProvider = (props: WebSocketProviderProps) => {
 	const { children } = props;
-	const [messages, setMessages] = useState<any[]>([]);
+	const [messages, setMessages] = useState<NewMessageType[]>([]);
 
 	const chatSocket = useMemo(() => io(WS_BASE_URL), []);
 
-	const onReceiveMessage = (newMessage: any) => {
-		console.log(messages, newMessage);
-		setMessages([...messages, newMessage]);
+	const onReceiveMessage = (messages: NewMessageType[]) => {
+		setMessages(messages);
 	};
 
 	useEffect(() => {

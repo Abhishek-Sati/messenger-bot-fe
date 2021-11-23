@@ -1,11 +1,13 @@
-import React, { useContext, useEffect, useState, memo } from "react";
-import { MessageType, NewMessageType, WebSocketContext } from "../../contexts/webSocketContext";
+import React, { useRef, useContext, useEffect, useState, memo } from "react";
+import { NewMessageType, WebSocketContext } from "../../contexts/webSocketContext";
 import { MessageList } from "./MessageList";
+import { apiEndPoints, apiGetRequest } from "../../utils/api";
 import "./index.css";
 
 let updatedMessages: NewMessageType[] = [];
 
 export const Chat = memo(() => {
+	const bottomMessageRef = useRef<HTMLDivElement>(null);
 	const { chatSocket, messages, onReceiveMessage } = useContext(WebSocketContext);
 	const [message, setMessage] = useState("");
 
@@ -13,8 +15,20 @@ export const Chat = memo(() => {
 		chatSocket?.on("receiveMessage", (data: any) => {
 			onReceiveMessage([...updatedMessages, data]);
 			updatedMessages = [];
+			handleScrollToEnd();
 		});
+		handleFetchAllMessages();
 	}, []);
+
+	const handleScrollToEnd = (smooth: boolean = true) => {
+		bottomMessageRef?.current?.scrollIntoView({ behavior: smooth ? "smooth" : undefined });
+	};
+
+	const handleFetchAllMessages = async () => {
+		const { data: responseData } = await apiGetRequest(apiEndPoints.messages.getAllMessages());
+		onReceiveMessage(responseData?.data ?? []);
+		handleScrollToEnd(false);
+	};
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.currentTarget.value);
@@ -23,9 +37,8 @@ export const Chat = memo(() => {
 	const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		// to find message id of last message sent by user.
-		const { message_id, message: prevMessage } = [...messages].reverse().find(({ fromBot }) => !Boolean(fromBot)) ?? {};
+		const { message_id } = [...messages].reverse().find(({ fromBot }) => !Boolean(fromBot)) ?? {};
 		const { type } = messages[messages.length - 1] ?? {};
-		console.log(type, message_id, prevMessage);
 		chatSocket?.emit("sendMessage", { message, type, prevMessageId: message_id, fromBot: false }, (error: any, data: any) => {
 			if (error) {
 				console.error(data);
@@ -34,9 +47,9 @@ export const Chat = memo(() => {
 				// storing message copy in global variable, because updating state is an async task and by the time...
 				// ... this state gets updated, we already are going to receive new message on above use effect from backend service.
 				updatedMessages = [...messages, data];
-				console.info("data : ", messages, updatedMessages);
 				onReceiveMessage(updatedMessages);
 				setMessage("");
+				handleScrollToEnd();
 			}
 		});
 	};
@@ -44,7 +57,7 @@ export const Chat = memo(() => {
 	return (
 		<div className='chat-container'>
 			<div className='messenger-title'>Messenger Bot</div>
-			<MessageList />
+			<MessageList bottomMessageRef={bottomMessageRef} />
 			<form onSubmit={handleSubmit}>
 				<label>
 					Enter Message:

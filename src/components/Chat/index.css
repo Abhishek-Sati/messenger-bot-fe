@@ -7,7 +7,6 @@
 	height: 90%;
 	width: 35rem;
 	row-gap: 3rem;
-	overflow-y: auto;
 	padding: 2rem;
 	margin-top: 2rem;
 	position: relative;
@@ -19,7 +18,6 @@
 	row-gap: 0.5rem;
 	width: 100%;
 	height: 34rem;
-	align-content: end;
 }
 
 .bot-message {
@@ -53,6 +51,8 @@
 
 .messenger-title {
 	position: absolute;
-	top: 0.25rem;
+	top: 0;
 	font-weight: bold;
+	background-color: white;
+	padding: 0.25rem 0;
 }

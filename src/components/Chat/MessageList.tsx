@@ -1,7 +1,12 @@
-import React, { memo, useContext } from "react";
+import { memo, useContext } from "react";
 import { WebSocketContext } from "../../contexts/webSocketContext";
 
-export const MessageList = memo(() => {
+type PropsFromParent = {
+	bottomMessageRef: any;
+};
+
+export const MessageList = memo((props: PropsFromParent) => {
+	const { bottomMessageRef } = props;
 	const { messages } = useContext(WebSocketContext);
 
 	const renderMessageList = () => {
@@ -14,5 +19,10 @@ export const MessageList = memo(() => {
 
 	const renderEmptyListMessage = () => <p>No Previous Message Found. Start chat...</p>;
 
-	return <div className='message-list-container'>{messages.length ? renderMessageList() : renderEmptyListMessage()}</div>;
+	return (
+		<div className='message-list-container'>
+			{messages.length ? renderMessageList() : renderEmptyListMessage()}
+			<div ref={bottomMessageRef} />
+		</div>
+	);
 });
